@@ -55,8 +55,6 @@ namespace BestestTVModPlugin
 
         // Token: 0x04000004 RID: 4
         private static readonly Harmony Harmony = new Harmony("DeathWrench.BestTelevisionMod");
-        // Token: 0x04000004 RID: 4
-        private Harmony _harmony;
 
         // Token: 0x04000005 RID: 5
         public static string[] filePaths;
@@ -72,8 +70,5 @@ namespace BestestTVModPlugin
 
         // Token: 0x04000009 RID: 9
         private string pluginpath;
-
-        // Token: 0x0400000A RID: 10
-        private string pluginpath2;
     }
 }

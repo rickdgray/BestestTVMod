@@ -25,7 +25,6 @@ namespace BestestTVModPlugin
             if (currentVideoPlayer == null)
             {
                 currentVideoPlayer = __instance.GetComponent<VideoPlayer>();
-                renderTexture = currentVideoPlayer.targetTexture;
                 if (VideoManager.Videos.Count > 0)
                 {
                    // TVScriptPatches.PrepareVideo(__instance, 0);
@@ -51,7 +50,7 @@ namespace BestestTVModPlugin
                 //        num2 = (int)TVScriptPatches.currentClipProperty.GetValue(__instance) + 0;
                 //        TVScriptPatches.TVIndex = num2;
                 //}
-                __instance.video.aspectRatio = ConfigManager.tvScalingOption.Value;
+                __instance.video.aspectRatio = ConfigManager.TvScalingOption.Value;
                 //__instance.video.renderMode = ConfigManager.tvRenderMode.Value;
                 Object.Destroy(nextVideoPlayer);
                 nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
@@ -79,7 +78,7 @@ namespace BestestTVModPlugin
             {
                 BestestTVModPlugin.Log.LogInfo("Turning on TV");
                 SetTVScreenMaterial(__instance, true);
-                if (on && ConfigManager.tvSkipsAfterOffOn.Value)// && tvHasPlayedBefore)
+                if (on && ConfigManager.TvSkipsAfterOffOn.Value)// && tvHasPlayedBefore)
                 {
                     //num2 = (num2 + 1) % VideoManager.Videos.Count;
                    // TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
@@ -95,7 +94,6 @@ namespace BestestTVModPlugin
                     }
                     TVIndex = num2;
                 }
-                tvHasPlayedBefore = true;
                 __instance.tvSFX.Play();
                 __instance.video.Play();
                 __instance.tvSFX.PlayOneShot(__instance.switchTVOn);
@@ -103,7 +101,7 @@ namespace BestestTVModPlugin
             }
             else
             {
-                if (!ConfigManager.tvOnAlways.Value)
+                if (!ConfigManager.TvOnAlways.Value)
                 {
                     BestestTVModPlugin.Log.LogInfo("Turning on TV");
                     SetTVScreenMaterial(__instance, false);
@@ -122,7 +120,7 @@ namespace BestestTVModPlugin
                     //    TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
                     //    TVScriptPatches.currentClipProperty.SetValue(__instance, num2);
                     //}
-                    if (!on && ConfigManager.tvSkipsAfterOffOn.Value)
+                    if (!on && ConfigManager.TvSkipsAfterOffOn.Value)
                     {
                         //num2 = (num2 + 1) % VideoManager.Videos.Count;
                         // TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
@@ -154,7 +152,7 @@ namespace BestestTVModPlugin
             {
                 b
             });
-            if (!ConfigManager.tvLightEnabled.Value)
+            if (!ConfigManager.TvLightEnabled.Value)
             {
                 __instance.tvLight.enabled = false;
             }
@@ -165,7 +163,7 @@ namespace BestestTVModPlugin
         [HarmonyPrefix]
         public static bool TVFinishedClip(TVScript __instance, VideoPlayer _)
         {
-            if (!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory || !ConfigManager.tvPlaysSequentially.Value)//(!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory)
+            if (!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory || !ConfigManager.TvPlaysSequentially.Value)//(!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory)
             {
                 return false;
             }
@@ -216,7 +214,7 @@ namespace BestestTVModPlugin
             //    num2 = (int)TVScriptPatches.currentClipProperty.GetValue(__instance) + 1;
             //    TVScriptPatches.TVIndex = num2;
             //}
-            __instance.video.aspectRatio = ConfigManager.tvScalingOption.Value;
+            __instance.video.aspectRatio = ConfigManager.TvScalingOption.Value;
             Object.Destroy(nextVideoPlayer);
             nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
             nextVideoPlayer.clip = null;
@@ -289,7 +287,7 @@ namespace BestestTVModPlugin
                     if (flag7)
                     {
                         bool wasPressedThisFrame = Keyboard.current.leftBracketKey.wasPressedThisFrame;
-                        if (wasPressedThisFrame && ConfigManager.enableSeeking.Value)
+                        if (wasPressedThisFrame && ConfigManager.EnableSeeking.Value)
                         {
                             num -= 15.0;
                             bool flag8 = num < 0.0;
@@ -305,14 +303,14 @@ namespace BestestTVModPlugin
                             }
                         }
                         bool wasPressedThisFrame2 = Keyboard.current.rightBracketKey.wasPressedThisFrame;
-                        if (wasPressedThisFrame2 && ConfigManager.enableSeeking.Value)
+                        if (wasPressedThisFrame2 && ConfigManager.EnableSeeking.Value)
                         {
                             num += 15.0;
                             componentInChildren.time = num;
                             BestestTVModPlugin.Log.LogInfo("AdjustTime: " + num.ToString());
                         }
                         bool wasPressedThisFrame3 = Keyboard.current.commaKey.wasPressedThisFrame;
-                        if (wasPressedThisFrame3 && ConfigManager.enableChannels.Value && !ConfigManager.restrictChannels.Value)// && !ConfigManager.tvSkipsAfterOffOn.Value && !ConfigManager.tvPlaysSequentially.Value)
+                        if (wasPressedThisFrame3 && ConfigManager.EnableChannels.Value && !ConfigManager.RestrictChannels.Value)// && !ConfigManager.tvSkipsAfterOffOn.Value && !ConfigManager.tvPlaysSequentially.Value)
                         {
                             bool flag9 = num2 > 0;
                             if (flag9)
@@ -326,7 +324,7 @@ namespace BestestTVModPlugin
                             }
                         }
                         bool wasPressedThisFrame4 = Keyboard.current.periodKey.wasPressedThisFrame;
-                        if (wasPressedThisFrame4 && ConfigManager.enableChannels.Value && !ConfigManager.restrictChannels.Value)// && !ConfigManager.tvSkipsAfterOffOn.Value && !ConfigManager.tvPlaysSequentially.Value)
+                        if (wasPressedThisFrame4 && ConfigManager.EnableChannels.Value && !ConfigManager.RestrictChannels.Value)// && !ConfigManager.tvSkipsAfterOffOn.Value && !ConfigManager.tvPlaysSequentially.Value)
                         {
                             bool flag10 = num2 >= BestestTVModPlugin.filePaths.Length - 1;
                             if (flag10)
@@ -349,25 +347,25 @@ namespace BestestTVModPlugin
                         string Seek = $"Seek: [[][]]\n{num:0.###}";
                         string Volume = $"\nVolume: [-][+]\n{num4:0.##}";
                         string Channels = $"\nChannels: [,][.]\n{num2 + 1}";
-                        if (!ConfigManager.hideHoverTip.Value)
+                        if (!ConfigManager.HideHoverTip.Value)
                         {
-                            if (ConfigManager.enableSeeking.Value && ConfigManager.enableChannels.Value && ConfigManager.mouseWheelVolume.Value)
+                            if (ConfigManager.EnableSeeking.Value && ConfigManager.EnableChannels.Value && ConfigManager.MouseWheelVolume.Value)
                                 interactTrigger.hoverTip = $"{Seek}{Volume}{Channels}";
-                            if (ConfigManager.enableSeeking.Value && ConfigManager.enableChannels.Value && !ConfigManager.mouseWheelVolume.Value)
+                            if (ConfigManager.EnableSeeking.Value && ConfigManager.EnableChannels.Value && !ConfigManager.MouseWheelVolume.Value)
                                 interactTrigger.hoverTip = $"{Seek}{Channels}";
-                            if (ConfigManager.enableSeeking.Value && !ConfigManager.enableChannels.Value && ConfigManager.mouseWheelVolume.Value)
+                            if (ConfigManager.EnableSeeking.Value && !ConfigManager.EnableChannels.Value && ConfigManager.MouseWheelVolume.Value)
                                 interactTrigger.hoverTip = $"{Seek}{Volume}";
-                            if (!ConfigManager.enableSeeking.Value && ConfigManager.enableChannels.Value && ConfigManager.mouseWheelVolume.Value)
+                            if (!ConfigManager.EnableSeeking.Value && ConfigManager.EnableChannels.Value && ConfigManager.MouseWheelVolume.Value)
                                 interactTrigger.hoverTip = $"{Volume}{Channels}";
-                            if (!ConfigManager.enableSeeking.Value && !ConfigManager.enableChannels.Value && ConfigManager.mouseWheelVolume.Value)
+                            if (!ConfigManager.EnableSeeking.Value && !ConfigManager.EnableChannels.Value && ConfigManager.MouseWheelVolume.Value)
                                 interactTrigger.hoverTip = $"{Volume}";
-                            if (ConfigManager.enableSeeking.Value && !ConfigManager.enableChannels.Value && !ConfigManager.mouseWheelVolume.Value)
+                            if (ConfigManager.EnableSeeking.Value && !ConfigManager.EnableChannels.Value && !ConfigManager.MouseWheelVolume.Value)
                                 interactTrigger.hoverTip = $"{Seek}";
-                            if (!ConfigManager.enableSeeking.Value && ConfigManager.enableChannels.Value && !ConfigManager.mouseWheelVolume.Value)
+                            if (!ConfigManager.EnableSeeking.Value && ConfigManager.EnableChannels.Value && !ConfigManager.MouseWheelVolume.Value)
                                 interactTrigger.hoverTip = $"{Channels}";
                         }
                         bool flag12 = num2 != TVIndex;
-                        if (flag12 && ConfigManager.enableChannels.Value)
+                        if (flag12 && ConfigManager.EnableChannels.Value)
                         {
                             currentVideoPlayer.Stop();
                             TVIndex = num2;
@@ -380,7 +378,7 @@ namespace BestestTVModPlugin
                             BestestTVModPlugin.Log.LogInfo($"AdjustMediaFile: {BestestTVModPlugin.filePaths[TVIndex]}");
                         }
                         bool flag13 = num3 != 0f;
-                        if (flag13 && ConfigManager.mouseWheelVolume.Value)
+                        if (flag13 && ConfigManager.MouseWheelVolume.Value)
                         {
                             num3 /= 6000f;
                             num4 = Mathf.Clamp(num4 + num3, 0f, 1f);
@@ -401,7 +399,7 @@ namespace BestestTVModPlugin
             Transform parent = __instance.transform.parent;
             InteractTrigger interactTrigger = (parent != null) ? parent.GetComponentInChildren<InteractTrigger>() : null;
             bool flag = interactTrigger == null;
-            if (flag || !ConfigManager.enableSeeking.Value && !ConfigManager.enableChannels.Value && !ConfigManager.mouseWheelVolume.Value)
+            if (flag || !ConfigManager.EnableSeeking.Value && !ConfigManager.EnableChannels.Value && !ConfigManager.MouseWheelVolume.Value)
             {
                 BestestTVModPlugin.Log.LogInfo("Television trigger missing!");
             }
@@ -411,38 +409,12 @@ namespace BestestTVModPlugin
             }
         }
         // Token: 0x04000007 RID: 7
-        private static FieldInfo currentClipProperty = typeof(TVScript).GetField("currentClip", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo currentClipProperty = typeof(TVScript).GetField("currentClip", BindingFlags.Instance | BindingFlags.NonPublic);
 
         // Token: 0x04000008 RID: 8
-        private static FieldInfo currentTimeProperty = typeof(TVScript).GetField("currentClipTime", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        // Token: 0x04000009 RID: 9
-        private static FieldInfo wasTvOnLastFrameProp = typeof(TVScript).GetField("wasTvOnLastFrame", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        // Token: 0x0400000A RID: 10
-        private static FieldInfo timeSinceTurningOffTVProp = typeof(TVScript).GetField("timeSinceTurningOffTV", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        // Token: 0x0400000B RID: 11
-        private static MethodInfo setMatMethod = typeof(TVScript).GetMethod("SetTVScreenMaterial", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        // Token: 0x0400000C RID: 12
-        private static MethodInfo onEnableMethod = typeof(TVScript).GetMethod("OnEnable", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static MethodInfo aspectRatio = typeof(VideoPlayer).GetMethod("VideoAspectRatio", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static MethodInfo width = typeof(Resolution).GetMethod("m_Height", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static MethodInfo height = typeof(Resolution).GetMethod("m_Width", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        // Token: 0x170003F4 RID: 1012
-        // (get) Token: 0x06001389 RID: 5001
-        // (set) Token: 0x0600138A RID: 5002
-        // Token: 0x0400000D RID: 13
-        private static bool tvHasPlayedBefore = false;
+        private static readonly FieldInfo currentTimeProperty = typeof(TVScript).GetField("currentClipTime", BindingFlags.Instance | BindingFlags.NonPublic);
 
         public static bool doweneedtodestroy = false;
-        // Token: 0x0400000E RID: 14
-        private static RenderTexture renderTexture;
 
         // Token: 0x0400000F RID: 15
         private static VideoPlayer currentVideoPlayer;
