@@ -15,7 +15,7 @@ namespace BestestTVModPlugin
         [HarmonyPostfix]
         public static void SetTVIndex()
         {
-            TVIndex = 0;// TVScriptPatches.TVIndex % VideoManager.Videos.Count - 0;
+            TVIndex = 0;
         }
         // Token: 0x06000006 RID: 6 RVA: 0x000021D1 File Offset: 0x000003D1
         [HarmonyPatch(typeof(TVScript), "Update")]
@@ -25,10 +25,6 @@ namespace BestestTVModPlugin
             if (currentVideoPlayer == null)
             {
                 currentVideoPlayer = __instance.GetComponent<VideoPlayer>();
-                if (VideoManager.Videos.Count > 0)
-                {
-                   // TVScriptPatches.PrepareVideo(__instance, 0);
-                }
             }
             return false;
         }
@@ -38,20 +34,13 @@ namespace BestestTVModPlugin
         [HarmonyPrefix]
         public static bool TurnTVOnOff(bool on, TVScript __instance)
         {
-            //int num2 = (int)TVScriptPatches.currentClipProperty.GetValue(__instance);
             int num2 = TVIndex;
             __instance.tvOn = on;
             bool flag = __instance.video.source != VideoSource.Url || __instance.video.url == "" || nextVideoPlayer.url == "" || currentVideoPlayer.url == "";
             bool flag2 = flag;
             if (flag2)
             {
-                //if (ConfigManager.tvSkipsAfterOffOn.Value)
-                //{
-                //        num2 = (int)TVScriptPatches.currentClipProperty.GetValue(__instance) + 0;
-                //        TVScriptPatches.TVIndex = num2;
-                //}
                 __instance.video.aspectRatio = ConfigManager.TvScalingOption.Value;
-                //__instance.video.renderMode = ConfigManager.tvRenderMode.Value;
                 Object.Destroy(nextVideoPlayer);
                 nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
                 nextVideoPlayer.clip = null;
@@ -65,12 +54,6 @@ namespace BestestTVModPlugin
                 __instance.video.audioOutputMode = VideoAudioOutputMode.AudioSource;
                 __instance.video.SetTargetAudioSource(0, __instance.tvSFX);
                 __instance.video.Prepare();
-                //if (!on && ConfigManager.tvSkipsAfterOffOn.Value)
-                //{
-                //    PrepareVideo(__instance); 
-                //}
-                //TVScriptPatches.nextVideoPlayer.Stop();
-                //TVScriptPatches.currentVideoPlayer.Stop();
                 __instance.video.Stop();
                 __instance.tvSFX.Stop();
             }
@@ -78,11 +61,8 @@ namespace BestestTVModPlugin
             {
                 BestestTVModPlugin.Log.LogInfo("Turning on TV");
                 SetTVScreenMaterial(__instance, true);
-                if (on && ConfigManager.TvSkipsAfterOffOn.Value)// && tvHasPlayedBefore)
+                if (on && ConfigManager.TvSkipsAfterOffOn.Value)
                 {
-                    //num2 = (num2 + 1) % VideoManager.Videos.Count;
-                   // TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
-                   // TVScriptPatches.currentClipProperty.SetValue(__instance, num2);
                     bool flag10 = num2 >= BestestTVModPlugin.filePaths.Length - 1;
                     if (flag10)
                     {
@@ -114,17 +94,8 @@ namespace BestestTVModPlugin
                 {
                     BestestTVModPlugin.Log.LogInfo("Turning on TV");
                     SetTVScreenMaterial(__instance, true);
-                    //if (ConfigManager.tvSkipsAfterOffOn.Value)
-                    //{
-                    //    num2 = (num2 + 1) % VideoManager.Videos.Count;
-                    //    TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
-                    //    TVScriptPatches.currentClipProperty.SetValue(__instance, num2);
-                    //}
                     if (!on && ConfigManager.TvSkipsAfterOffOn.Value)
                     {
-                        //num2 = (num2 + 1) % VideoManager.Videos.Count;
-                        // TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
-                        // TVScriptPatches.currentClipProperty.SetValue(__instance, num2);
                         bool flag10 = num2 >= BestestTVModPlugin.filePaths.Length - 1;
                         if (flag10)
                         {
@@ -163,7 +134,7 @@ namespace BestestTVModPlugin
         [HarmonyPrefix]
         public static bool TVFinishedClip(TVScript __instance, VideoPlayer _)
         {
-            if (!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory || !ConfigManager.TvPlaysSequentially.Value)//(!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory)
+            if (!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory || !ConfigManager.TvPlaysSequentially.Value)
             {
                 return false;
             }
@@ -209,11 +180,6 @@ namespace BestestTVModPlugin
 
         private static void WhatItDo(TVScript __instance, int num2 = -1)
         {
-            //if (num2 == -1)
-            //{
-            //    num2 = (int)TVScriptPatches.currentClipProperty.GetValue(__instance) + 1;
-            //    TVScriptPatches.TVIndex = num2;
-            //}
             __instance.video.aspectRatio = ConfigManager.TvScalingOption.Value;
             Object.Destroy(nextVideoPlayer);
             nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
@@ -228,10 +194,6 @@ namespace BestestTVModPlugin
             __instance.video.audioOutputMode = VideoAudioOutputMode.AudioSource;
             __instance.video.SetTargetAudioSource(0, __instance.tvSFX);
             __instance.video.Prepare();
-            //if (!on && ConfigManager.tvSkipsAfterOffOn.Value)
-            //{
-            //    PrepareVideo(__instance); 
-            //}
             nextVideoPlayer.Stop();
             currentVideoPlayer.Stop();
             __instance.video.Stop();
@@ -240,9 +202,6 @@ namespace BestestTVModPlugin
             __instance.tvSFX.Play();
         }
 
-        // Token: 0x0600000A RID: 10 RVA: 0x000024A0 File Offset: 0x000006A0
-        
-        // LethalTVManager.Patches.LethalTVController
         // Token: 0x0600000A RID: 10 RVA: 0x00002438 File Offset: 0x00000638
         [HarmonyPatch(typeof(PlayerControllerB), "Update")]
         [HarmonyPostfix]
@@ -310,13 +269,12 @@ namespace BestestTVModPlugin
                             BestestTVModPlugin.Log.LogInfo("AdjustTime: " + num.ToString());
                         }
                         bool wasPressedThisFrame3 = Keyboard.current.commaKey.wasPressedThisFrame;
-                        if (wasPressedThisFrame3 && ConfigManager.EnableChannels.Value && !ConfigManager.RestrictChannels.Value)// && !ConfigManager.tvSkipsAfterOffOn.Value && !ConfigManager.tvPlaysSequentially.Value)
+                        if (wasPressedThisFrame3 && ConfigManager.EnableChannels.Value && !ConfigManager.RestrictChannels.Value)
                         {
                             bool flag9 = num2 > 0;
                             if (flag9)
                             {
                                 num2--;
-                                //num2 = (num2 - 1) % VideoManager.Videos.Count;
                             }
                             else
                             {
@@ -324,7 +282,7 @@ namespace BestestTVModPlugin
                             }
                         }
                         bool wasPressedThisFrame4 = Keyboard.current.periodKey.wasPressedThisFrame;
-                        if (wasPressedThisFrame4 && ConfigManager.EnableChannels.Value && !ConfigManager.RestrictChannels.Value)// && !ConfigManager.tvSkipsAfterOffOn.Value && !ConfigManager.tvPlaysSequentially.Value)
+                        if (wasPressedThisFrame4 && ConfigManager.EnableChannels.Value && !ConfigManager.RestrictChannels.Value)
                         {
                             bool flag10 = num2 >= BestestTVModPlugin.filePaths.Length - 1;
                             if (flag10)
@@ -334,7 +292,6 @@ namespace BestestTVModPlugin
                             else
                             {
                                 num2++;
-                               // num2 = (num2 + 1) % VideoManager.Videos.Count;
                             }
                         }
                         Transform parent2 = componentInChildren.transform.parent;
@@ -372,9 +329,6 @@ namespace BestestTVModPlugin
                             componentInChildren.time = 0.0;
                             componentInChildren.url = $"file://{BestestTVModPlugin.filePaths[TVIndex]}";
                             currentClipProperty.SetValue(__instance, num2);
-                            //TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
-                            //TVScriptPatches.currentVideoPlayer.url = "file://" + BestestTVModPlugin.filePaths[num2 % VideoManager.Videos.Count];
-                            //TVScriptPatches.nextVideoPlayer.url = "file://" + BestestTVModPlugin.filePaths[VideoManager.Videos.Count];
                             BestestTVModPlugin.Log.LogInfo($"AdjustMediaFile: {BestestTVModPlugin.filePaths[TVIndex]}");
                         }
                         bool flag13 = num3 != 0f;
@@ -402,10 +356,6 @@ namespace BestestTVModPlugin
             if (flag || !ConfigManager.EnableSeeking.Value && !ConfigManager.EnableChannels.Value && !ConfigManager.MouseWheelVolume.Value)
             {
                 BestestTVModPlugin.Log.LogInfo("Television trigger missing!");
-            }
-            else
-            {
-                //interactTrigger.hoverTip = "Seek: [[][]]\nVolume: [-][+]\nChannels: [,][.]\n";
             }
         }
         // Token: 0x04000007 RID: 7
