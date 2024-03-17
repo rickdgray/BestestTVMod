@@ -377,7 +377,7 @@ namespace BestestTVModPlugin
                             //TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
                             //TVScriptPatches.currentVideoPlayer.url = "file://" + BestestTVModPlugin.filePaths[num2 % VideoManager.Videos.Count];
                             //TVScriptPatches.nextVideoPlayer.url = "file://" + BestestTVModPlugin.filePaths[VideoManager.Videos.Count];
-                            BestestTVModPlugin.Log.LogInfo("AdjustMediaFile: " + BestestTVModPlugin.filePaths[TVIndex]);
+                            BestestTVModPlugin.Log.LogInfo($"AdjustMediaFile: {BestestTVModPlugin.filePaths[TVIndex]}");
                         }
                         bool flag13 = num3 != 0f;
                         if (flag13 && ConfigManager.mouseWheelVolume.Value)
@@ -385,7 +385,7 @@ namespace BestestTVModPlugin
                             num3 /= 6000f;
                             num4 = Mathf.Clamp(num4 + num3, 0f, 1f);
                             component.volume = num4;
-                            BestestTVModPlugin.Log.LogInfo("Changed volume: " + component.volume.ToString());
+                            BestestTVModPlugin.Log.LogInfo($"Changed volume: {component.volume}");
                         }
                     }
                 }

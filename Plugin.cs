@@ -15,7 +15,7 @@ namespace BestestTVModPlugin
         {
             ConfigManager.Init(Config);
             instance = this;
-            pluginpath = Paths.PluginPath + Path.DirectorySeparatorChar.ToString() + "Television Videos";
+            pluginpath = $"{Paths.PluginPath}{Path.DirectorySeparatorChar}Television Videos";
             if (Directory.Exists(pluginpath))
             {
                 files = Directory.GetFiles(pluginpath);
