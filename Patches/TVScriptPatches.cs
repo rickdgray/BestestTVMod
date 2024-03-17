@@ -1,13 +1,9 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Video;
-using BestestTVModPlugin;
-using static UnityEngine.ParticleSystem.PlaybackState;
-using System.Runtime.CompilerServices;
 
 namespace BestestTVModPlugin
 {
@@ -19,17 +15,17 @@ namespace BestestTVModPlugin
         [HarmonyPostfix]
         public static void SetTVIndex()
         {
-            TVScriptPatches.TVIndex = 0;// TVScriptPatches.TVIndex % VideoManager.Videos.Count - 0;
+            TVIndex = 0;// TVScriptPatches.TVIndex % VideoManager.Videos.Count - 0;
         }
         // Token: 0x06000006 RID: 6 RVA: 0x000021D1 File Offset: 0x000003D1
         [HarmonyPatch(typeof(TVScript), "Update")]
         [HarmonyPrefix]
         public static bool Update(TVScript __instance)
         {
-            if (TVScriptPatches.currentVideoPlayer == null)
+            if (currentVideoPlayer == null)
             {
-                TVScriptPatches.currentVideoPlayer = __instance.GetComponent<VideoPlayer>();
-                TVScriptPatches.renderTexture = TVScriptPatches.currentVideoPlayer.targetTexture;
+                currentVideoPlayer = __instance.GetComponent<VideoPlayer>();
+                renderTexture = currentVideoPlayer.targetTexture;
                 if (VideoManager.Videos.Count > 0)
                 {
                    // TVScriptPatches.PrepareVideo(__instance, 0);
@@ -46,7 +42,7 @@ namespace BestestTVModPlugin
             //int num2 = (int)TVScriptPatches.currentClipProperty.GetValue(__instance);
             int num2 = TVIndex;
             __instance.tvOn = on;
-            bool flag = __instance.video.source != VideoSource.Url || __instance.video.url == "" || TVScriptPatches.nextVideoPlayer.url == "" || TVScriptPatches.currentVideoPlayer.url == "";
+            bool flag = __instance.video.source != VideoSource.Url || __instance.video.url == "" || nextVideoPlayer.url == "" || currentVideoPlayer.url == "";
             bool flag2 = flag;
             if (flag2)
             {
@@ -57,14 +53,14 @@ namespace BestestTVModPlugin
                 //}
                 __instance.video.aspectRatio = ConfigManager.tvScalingOption.Value;
                 //__instance.video.renderMode = ConfigManager.tvRenderMode.Value;
-                UnityEngine.Object.Destroy(TVScriptPatches.nextVideoPlayer);
-                TVScriptPatches.nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
-                TVScriptPatches.nextVideoPlayer.clip = null;
-                TVScriptPatches.currentVideoPlayer.clip = null;
+                Object.Destroy(nextVideoPlayer);
+                nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
+                nextVideoPlayer.clip = null;
+                currentVideoPlayer.clip = null;
                 __instance.video.clip = null;
                 __instance.tvSFX.clip = null;
-                BestestTVModPlugin.Log.LogInfo("file://" + BestestTVModPlugin.filePaths[TVIndex]);
-                __instance.video.url = "file://" + BestestTVModPlugin.filePaths[TVIndex];
+                BestestTVModPlugin.Log.LogInfo($"file://{BestestTVModPlugin.filePaths[TVIndex]}");
+                __instance.video.url = $"file://{BestestTVModPlugin.filePaths[TVIndex]}";
                 __instance.video.source = VideoSource.Url;
                 __instance.video.controlledAudioTrackCount = 1;
                 __instance.video.audioOutputMode = VideoAudioOutputMode.AudioSource;
@@ -82,7 +78,7 @@ namespace BestestTVModPlugin
             if (on)
             {
                 BestestTVModPlugin.Log.LogInfo("Turning on TV");
-                TVScriptPatches.SetTVScreenMaterial(__instance, true);
+                SetTVScreenMaterial(__instance, true);
                 if (on && ConfigManager.tvSkipsAfterOffOn.Value)// && tvHasPlayedBefore)
                 {
                     //num2 = (num2 + 1) % VideoManager.Videos.Count;
@@ -110,7 +106,7 @@ namespace BestestTVModPlugin
                 if (!ConfigManager.tvOnAlways.Value)
                 {
                     BestestTVModPlugin.Log.LogInfo("Turning on TV");
-                    TVScriptPatches.SetTVScreenMaterial(__instance, false);
+                    SetTVScreenMaterial(__instance, false);
                     __instance.tvSFX.Stop();
                     __instance.video.Stop();
                     __instance.tvSFX.PlayOneShot(__instance.switchTVOn);
@@ -119,7 +115,7 @@ namespace BestestTVModPlugin
                 else
                 {
                     BestestTVModPlugin.Log.LogInfo("Turning on TV");
-                    TVScriptPatches.SetTVScreenMaterial(__instance, true);
+                    SetTVScreenMaterial(__instance, true);
                     //if (ConfigManager.tvSkipsAfterOffOn.Value)
                     //{
                     //    num2 = (num2 + 1) % VideoManager.Videos.Count;
@@ -150,39 +146,39 @@ namespace BestestTVModPlugin
             }
             return false;
         }
+
         public static void SetTVScreenMaterial(TVScript __instance, bool b)
         {
             MethodInfo method = __instance.GetType().GetMethod("SetTVScreenMaterial", BindingFlags.Instance | BindingFlags.NonPublic);
             method.Invoke(__instance, new object[]
             {
-        b
+                b
             });
             if (!ConfigManager.tvLightEnabled.Value)
             {
                 __instance.tvLight.enabled = false;
             }
         }
-        
 
         // Token: 0x06000008 RID: 8 RVA: 0x00002308 File Offset: 0x00000508
         [HarmonyPatch(typeof(TVScript), "TVFinishedClip")]
         [HarmonyPrefix]
-        public static bool TVFinishedClip(TVScript __instance, VideoPlayer source)
+        public static bool TVFinishedClip(TVScript __instance, VideoPlayer _)
         {
             if (!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory || !ConfigManager.tvPlaysSequentially.Value)//(!__instance.tvOn || GameNetworkManager.Instance.localPlayerController.isInsideFactory)
             {
                 return false;
             }
             BestestTVModPlugin.Log.LogInfo("TVFinishedClip");
-            int num2 = (int)TVScriptPatches.currentClipProperty.GetValue(__instance);
+            int num2 = (int)currentClipProperty.GetValue(__instance);
             if (VideoManager.Videos.Count > 0)
             {
                 num2 = (num2 + 1) % VideoManager.Videos.Count;
                 TVIndex = num2;
             }
-            TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
-            TVScriptPatches.currentClipProperty.SetValue(__instance, num2);
-            TVScriptPatches.WhatItDo(__instance);
+            currentTimeProperty.SetValue(__instance, 0f);
+            currentClipProperty.SetValue(__instance, num2);
+            WhatItDo(__instance);
             return false;
         }
 
@@ -191,27 +187,28 @@ namespace BestestTVModPlugin
         {
             if (num2 == -1)
             {
-                num2 = (int)TVScriptPatches.currentClipProperty.GetValue(__instance) + 1;
-                TVScriptPatches.TVIndex = num2;
+                num2 = (int)currentClipProperty.GetValue(__instance) + 1;
+                TVIndex = num2;
             }
-            if (TVScriptPatches.nextVideoPlayer != null && TVScriptPatches.nextVideoPlayer.gameObject.activeInHierarchy)
+            if (nextVideoPlayer != null && nextVideoPlayer.gameObject.activeInHierarchy)
             {
-                UnityEngine.Object.Destroy(TVScriptPatches.nextVideoPlayer);
+                Object.Destroy(nextVideoPlayer);
             }
-            TVScriptPatches.nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
-            TVScriptPatches.nextVideoPlayer.playOnAwake = false;
-            TVScriptPatches.nextVideoPlayer.isLooping = false;
-            TVScriptPatches.nextVideoPlayer.source = VideoSource.Url;
-            TVScriptPatches.nextVideoPlayer.controlledAudioTrackCount = 1;
-            TVScriptPatches.nextVideoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
-            TVScriptPatches.nextVideoPlayer.SetTargetAudioSource(0, __instance.tvSFX);
-            TVScriptPatches.nextVideoPlayer.url = "file://" + BestestTVModPlugin.filePaths[num2 % VideoManager.Videos.Count];
-            TVScriptPatches.nextVideoPlayer.Prepare();
-            TVScriptPatches.nextVideoPlayer.prepareCompleted += delegate (VideoPlayer source)
+            nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
+            nextVideoPlayer.playOnAwake = false;
+            nextVideoPlayer.isLooping = false;
+            nextVideoPlayer.source = VideoSource.Url;
+            nextVideoPlayer.controlledAudioTrackCount = 1;
+            nextVideoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+            nextVideoPlayer.SetTargetAudioSource(0, __instance.tvSFX);
+            nextVideoPlayer.url = $"file://{BestestTVModPlugin.filePaths[num2 % VideoManager.Videos.Count]}";
+            nextVideoPlayer.Prepare();
+            nextVideoPlayer.prepareCompleted += delegate (VideoPlayer source)
             {
                 BestestTVModPlugin.Log.LogInfo("Prepared next video!");
             };
         }
+
         private static void WhatItDo(TVScript __instance, int num2 = -1)
         {
             //if (num2 == -1)
@@ -220,14 +217,14 @@ namespace BestestTVModPlugin
             //    TVScriptPatches.TVIndex = num2;
             //}
             __instance.video.aspectRatio = ConfigManager.tvScalingOption.Value;
-            UnityEngine.Object.Destroy(TVScriptPatches.nextVideoPlayer);
-            TVScriptPatches.nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
-            TVScriptPatches.nextVideoPlayer.clip = null;
-            TVScriptPatches.currentVideoPlayer.clip = null;
+            Object.Destroy(nextVideoPlayer);
+            nextVideoPlayer = __instance.gameObject.AddComponent<VideoPlayer>();
+            nextVideoPlayer.clip = null;
+            currentVideoPlayer.clip = null;
             __instance.video.clip = null;
             __instance.tvSFX.clip = null;
-            BestestTVModPlugin.Log.LogInfo("file://" + BestestTVModPlugin.filePaths[TVIndex + 1]);
-            __instance.video.url = "file://" + BestestTVModPlugin.filePaths[TVIndex + 1];
+            BestestTVModPlugin.Log.LogInfo($"file://{BestestTVModPlugin.filePaths[TVIndex + 1]}");
+            __instance.video.url = $"file://{BestestTVModPlugin.filePaths[TVIndex + 1]}";
             __instance.video.source = VideoSource.Url;
             __instance.video.controlledAudioTrackCount = 1;
             __instance.video.audioOutputMode = VideoAudioOutputMode.AudioSource;
@@ -237,8 +234,8 @@ namespace BestestTVModPlugin
             //{
             //    PrepareVideo(__instance); 
             //}
-            TVScriptPatches.nextVideoPlayer.Stop();
-            TVScriptPatches.currentVideoPlayer.Stop();
+            nextVideoPlayer.Stop();
+            currentVideoPlayer.Stop();
             __instance.video.Stop();
             __instance.tvSFX.Stop();
             __instance.video.Play();
@@ -285,7 +282,7 @@ namespace BestestTVModPlugin
                     VideoPlayer componentInChildren = gameObject.GetComponentInChildren<VideoPlayer>();
                     AudioSource component = gameObject.transform.Find("TVAudio").GetComponent<AudioSource>();
                     double num = componentInChildren.time;
-                    int num2 = TVScriptPatches.TVIndex;
+                    int num2 = TVIndex;
                     float num3 = Mouse.current.scroll.ReadValue().y;
                     float num4 = component.volume;
                     bool flag7 = componentInChildren != null;
@@ -349,9 +346,9 @@ namespace BestestTVModPlugin
                         {
                             BestestTVModPlugin.Log.LogInfo("Television trigger missing!");
                         }
-                        string Seek = "Seek: [[][]]\n" + (num).ToString("0.###");
-                        string Volume = "\nVolume: [-][+]\n" + (num4).ToString("0.##");
-                        string Channels = "\nChannels: [,][.]\n" + (num2 + 1).ToString();
+                        string Seek = $"Seek: [[][]]\n{num:0.###}";
+                        string Volume = $"\nVolume: [-][+]\n{num4:0.##}";
+                        string Channels = $"\nChannels: [,][.]\n{num2 + 1}";
                         if (!ConfigManager.hideHoverTip.Value)
                         {
                             if (ConfigManager.enableSeeking.Value && ConfigManager.enableChannels.Value && ConfigManager.mouseWheelVolume.Value)
@@ -369,14 +366,14 @@ namespace BestestTVModPlugin
                             if (!ConfigManager.enableSeeking.Value && ConfigManager.enableChannels.Value && !ConfigManager.mouseWheelVolume.Value)
                                 interactTrigger.hoverTip = $"{Channels}";
                         }
-                        bool flag12 = num2 != TVScriptPatches.TVIndex;
+                        bool flag12 = num2 != TVIndex;
                         if (flag12 && ConfigManager.enableChannels.Value)
                         {
-                            TVScriptPatches.currentVideoPlayer.Stop();
-                            TVScriptPatches.TVIndex = num2;
+                            currentVideoPlayer.Stop();
+                            TVIndex = num2;
                             componentInChildren.time = 0.0;
-                            componentInChildren.url = "file://" + BestestTVModPlugin.filePaths[TVIndex];
-                            TVScriptPatches.currentClipProperty.SetValue(__instance, num2);
+                            componentInChildren.url = $"file://{BestestTVModPlugin.filePaths[TVIndex]}";
+                            currentClipProperty.SetValue(__instance, num2);
                             //TVScriptPatches.currentTimeProperty.SetValue(__instance, 0f);
                             //TVScriptPatches.currentVideoPlayer.url = "file://" + BestestTVModPlugin.filePaths[num2 % VideoManager.Videos.Count];
                             //TVScriptPatches.nextVideoPlayer.url = "file://" + BestestTVModPlugin.filePaths[VideoManager.Videos.Count];

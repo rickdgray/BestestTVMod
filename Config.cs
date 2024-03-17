@@ -1,7 +1,4 @@
 using BepInEx.Configuration;
-using System;
-using System.Runtime.CompilerServices;
-using UnityEngine;
 using UnityEngine.Video;
 
 namespace BestestTVModPlugin
@@ -14,7 +11,8 @@ namespace BestestTVModPlugin
         {
             Instance = new ConfigManager(config);
         }
-    public static ConfigEntry<bool> tvOnAlways { get; set; }
+
+        public static ConfigEntry<bool> tvOnAlways { get; set; }
         public static ConfigEntry<bool> tvPlaysSequentially { get; set; }
         public static ConfigEntry<bool> tvSkipsAfterOffOn { get; set; }
         public static ConfigEntry<bool> enableSeeking { get; set; }

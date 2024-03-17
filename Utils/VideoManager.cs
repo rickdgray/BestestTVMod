@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using BepInEx;
 
@@ -17,7 +16,7 @@ namespace BestestTVModPlugin
 				if (Directory.Exists(path))
 				{
 					string[] files = Directory.GetFiles(path, "*.mp4");
-					VideoManager.Videos.AddRange(files);
+					Videos.AddRange(files);
 					BestestTVModPlugin.Log.LogInfo(string.Format("{0} has {1} videos.", text, files.Length));
 				}
 			}
@@ -27,9 +26,9 @@ namespace BestestTVModPlugin
 				Directory.CreateDirectory(path2);
 			}
 			string[] files2 = Directory.GetFiles(path2, "*.mp4");
-			VideoManager.Videos.AddRange(files2);
+			Videos.AddRange(files2);
 			BestestTVModPlugin.Log.LogInfo(string.Format("Global has {0} videos.", files2.Length));
-			BestestTVModPlugin.Log.LogInfo(string.Format("Loaded {0} total.", VideoManager.Videos.Count));
+			BestestTVModPlugin.Log.LogInfo(string.Format("Loaded {0} total.", Videos.Count));
 		}
 
 		// Token: 0x04000006 RID: 6

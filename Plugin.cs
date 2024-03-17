@@ -3,7 +3,6 @@ using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using UnityEngine;
-using BestestTVModPlugin;
 
 namespace BestestTVModPlugin
 {
@@ -15,20 +14,20 @@ namespace BestestTVModPlugin
         private void Awake()
         {
             ConfigManager.Init(Config);
-            BestestTVModPlugin.instance = this;
-            this.pluginpath = Paths.PluginPath + Path.DirectorySeparatorChar.ToString() + "Television Videos";
-            if (Directory.Exists(this.pluginpath))
+            instance = this;
+            pluginpath = Paths.PluginPath + Path.DirectorySeparatorChar.ToString() + "Television Videos";
+            if (Directory.Exists(pluginpath))
             {
-                this.files = Directory.GetFiles(this.pluginpath);
+                files = Directory.GetFiles(pluginpath);
             }
             else
             {
-                this.files = null;
+                files = null;
             }
-            Debug.Log(this.files);
+            Debug.Log(files);
             int num = 0;
             int num2 = 0;
-            foreach (string text in this.files)
+            foreach (string text in files)
             {
                 num++;
                 bool flag3 = text != null && text.Contains(".mp4");
@@ -37,20 +36,20 @@ namespace BestestTVModPlugin
                     num2++;
                 }
             }
-            BestestTVModPlugin.filePaths = new string[num2];
+            filePaths = new string[num2];
             int num3 = 0;
             for (int j = 0; j < num; j++)
             {
-                bool flag4 = this.files[j] != null && this.files[j].Contains(".mp4");
+                bool flag4 = files[j] != null && files[j].Contains(".mp4");
                 if (flag4)
                 {
-                    BestestTVModPlugin.filePaths[num3] = this.files[j];
-                    BestestTVModPlugin.Log.LogInfo("Loaded file: " + BestestTVModPlugin.filePaths[num3]);
+                    filePaths[num3] = files[j];
+                    Log.LogInfo($"Loaded file: {filePaths[num3]}");
                     num3++;
                 }
             }
-            BestestTVModPlugin.Log = base.Logger;
-            BestestTVModPlugin.Harmony.PatchAll();
+            Log = Logger;
+            Harmony.PatchAll();
             VideoManager.Load();
         }
 
